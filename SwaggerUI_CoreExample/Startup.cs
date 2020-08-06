@@ -49,6 +49,7 @@ namespace SwaggerUI_CoreExample
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Swagger Configuration V1");
+                c.InjectStylesheet("/Assests/css/custom-swagger-ui.css");
             });
 
 
