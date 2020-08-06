@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace SwaggerUI_CoreExample
 {
@@ -24,17 +27,8 @@ namespace SwaggerUI_CoreExample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSwaggerGen();
-            //all hosts
-            services.AddCors(options =>
-            {
-                options.AddPolicy(name: "CorsPolicyAllHosts",
-                    builder =>
-                    {
-                        builder.AllowAnyHeader()
-                               .AllowAnyMethod()
-                               .AllowAnyOrigin();
-                    });
+            services.AddSwaggerGen(options=> {
+                options.IncludeXmlComments(XmlCommentsFilePath);
             });
         }
 
@@ -50,7 +44,6 @@ namespace SwaggerUI_CoreExample
             app.UseSwagger();
             app.UseRouting();
 
-            app.UseCors("CorsPolicyAllHosts");
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
@@ -63,6 +56,15 @@ namespace SwaggerUI_CoreExample
             {
                 endpoints.MapControllers();
             });
+        }
+        static string XmlCommentsFilePath
+        {
+            get
+            {
+                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                var fileName = typeof(Startup).GetTypeInfo().Assembly.GetName().Name + ".xml";
+                return Path.Combine(basePath, fileName);
+            }
         }
     }
 }
