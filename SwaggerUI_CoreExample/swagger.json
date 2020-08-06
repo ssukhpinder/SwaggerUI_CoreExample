@@ -1,0 +1,66 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "version": "v1",
+    "title": "API V1"
+  },
+  "basePath": "/",
+  "paths": {
+    "/api/Todo": {
+      "get": {
+        "tags": [
+          "Todo"
+        ],
+        "operationId": "ApiTodoGet",
+        "consumes": [],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TodoItem"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        ...
+      }
+    },
+    "/api/Todo/{id}": {
+      "get": {
+        ...
+      },
+      "put": {
+        ...
+      },
+      "delete": {
+        ...
+      },
+      "definitions": {
+        "TodoItem": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "isComplete": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "securityDefinitions": {}
+    }

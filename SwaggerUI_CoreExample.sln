@@ -1,0 +1,17 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwaggerUI_CoreExample", "SwaggerUI_CoreExample\SwaggerUI_CoreExample.csproj", "{6EF8EEA7-5E5E-4B8A-A4AD-EBA43994F5D5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6EF8EEA7-5E5E-4B8A-A4AD-EBA43994F5D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EF8EEA7-5E5E-4B8A-A4AD-EBA43994F5D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EF8EEA7-5E5E-4B8A-A4AD-EBA43994F5D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EF8EEA7-5E5E-4B8A-A4AD-EBA43994F5D5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
