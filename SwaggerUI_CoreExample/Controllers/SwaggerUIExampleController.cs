@@ -13,6 +13,7 @@ namespace SwaggerUI_CoreExample.Controllers
     [Route("api/[controller]")]
     public class SwaggerUIExampleController : Controller
     {
+        
         /// <summary>
         /// Get Operation
         /// </summary>
