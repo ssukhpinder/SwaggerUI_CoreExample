@@ -49,6 +49,8 @@ namespace SwaggerUI_CoreExample
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Swagger Configuration V1");
+                c.EnableDeepLinking();
+                c.DisplayOperationId();
             });
 
 
