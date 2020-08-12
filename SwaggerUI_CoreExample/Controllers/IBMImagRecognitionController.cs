@@ -17,13 +17,13 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace SwaggerUI_CoreExample.Controllers
 {
     [Route("api/[controller]")]
-    public class SwaggerUIExampleController : Controller
+    public class IBMImagRecognitionController : Controller
     {
         private IConfiguration _configuration;
         private string _apiKey;
         private string _ibmServiceUrl;
         private string _versionDate;
-        public SwaggerUIExampleController(IConfiguration configuration)
+        public IBMImagRecognitionController(IConfiguration configuration)
         {
             _configuration = configuration;
             _apiKey = _configuration["IbmWatson:ApiKey"];
