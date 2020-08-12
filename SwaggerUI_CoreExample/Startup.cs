@@ -43,6 +43,7 @@ namespace SwaggerUI_CoreExample
             app.UseDefaultFiles();
             app.UseSwagger();
             app.UseRouting();
+            app.UseHttpsRedirection();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint.

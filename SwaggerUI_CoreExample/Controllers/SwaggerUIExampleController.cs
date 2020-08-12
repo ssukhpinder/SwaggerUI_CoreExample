@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using IBM.Cloud.SDK.Core.Authentication.Iam;
+using IBM.Watson.VisualRecognition.v3;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using SwaggerUI_CoreExample.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -13,99 +19,82 @@ namespace SwaggerUI_CoreExample.Controllers
     [Route("api/[controller]")]
     public class SwaggerUIExampleController : Controller
     {
-        
-        /// <summary>
-        /// Get Operation
-        /// </summary>
-        /// <remarks>
-        /// Sample value of message
-        /// 
-        ///     Hi Sukhpinder
-        ///     
-        /// </remarks>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("/get/{message}")]
-        [SwaggerOperation("GetOperation")]
-        [SwaggerResponse(200,Type =typeof(string),Description ="Get operation")]
-        [SwaggerResponse(500, Type = typeof(string), Description = "Internal Server Error")]
-        [SwaggerResponse(404, Type = typeof(string), Description = "Method Not Found")]
-        public IActionResult GetOperation([FromRoute] string message)
+        private IConfiguration _configuration;
+        private string _apiKey;
+        private string _ibmServiceUrl;
+        private string _versionDate;
+        public SwaggerUIExampleController(IConfiguration configuration)
         {
-            return  Ok("Hello from get method. Message : "+message);
+            _configuration = configuration;
+            _apiKey = _configuration["IbmWatson:ApiKey"];
+            _ibmServiceUrl = _configuration["IbmWatson:Url"];
+            _versionDate = _configuration["IbmWatson:Version"];
         }
 
-
-        /// <summary>
-        /// Post Operation
-        /// </summary>
-        /// <remarks>
-        /// Sample value of message
-        /// 
-        ///     POST /Todo
-        ///     {
-        ///        "variable1": "Hi",
-        ///        "variable2": "Sukhpinder"
-        ///     }
-        ///     
-        /// </remarks>
-        /// <param name="message"></param>
-        /// <returns></returns>
         [HttpPost]
-        [Route("/post")]
-        [SwaggerOperation("PostOperation")]
-        [SwaggerResponse(200, Type = typeof(string), Description = "Post operation")]
-        [SwaggerResponse(500, Type = typeof(string), Description = "Internal Server Error")]
-        [SwaggerResponse(404, Type = typeof(string), Description = "Method Not Found")]
-        public IActionResult PostOperation([FromBody] PostModel message)
+        [Route("/recongnize-image")]
+        [SwaggerOperation("VisualRecognizeImage")]
+        [SwaggerResponse(200, Type = typeof(Class), Description = "Image Score")]
+        public IActionResult VisualRecognizeImage(IFormFile file)
         {
-            return Ok("Hello from post method. Message : " + message.variable1);
+            IamAuthenticator authenticator = new IamAuthenticator(apikey: _apiKey);
+
+            VisualRecognitionService visualRecognition = new VisualRecognitionService(_versionDate, authenticator);
+            visualRecognition.SetServiceUrl(_ibmServiceUrl);
+            byte[] fileBytes;
+            var ms = new MemoryStream();
+
+            file.CopyTo(ms);
+            fileBytes = ms.ToArray();
+            string s = Convert.ToBase64String(fileBytes);
+
+            var result = visualRecognition.Classify(
+                imagesFilename: file.FileName,
+                imagesFileContentType: file.ContentType,
+                imagesFile: ms
+                );
+
+            ms.Close();
+
+            var response = JsonConvert.DeserializeObject<FaceRecognitionResponse>(result.Response);
+            var classes = response.images.SelectMany(x => x.classifiers).SelectMany(y => y.classes).OrderByDescending(x => x.score);
+
+            return Ok(classes);
         }
 
-        /// <summary>
-        /// Put Operation
-        /// </summary>
-        /// <remarks>
-        /// Sample value of message
-        /// 
-        ///     Hi Sukhpinder
-        ///     
-        /// </remarks>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        [HttpPut]
-        [Route("/put/{message}")]
-        [SwaggerOperation("PutOperation")]
-        [SwaggerResponse(200, Type = typeof(string), Description = "Put operation")]
-        [SwaggerResponse(500, Type = typeof(string), Description = "Internal Server Error")]
-        [SwaggerResponse(404, Type = typeof(string), Description = "Method Not Found")]
-        public IActionResult PutOperation([FromRoute] string message)
+        [HttpPost]
+        [Route("/recongnize-image-of-foodtype")]
+        [SwaggerOperation("VisualRecognizeImageFoodClassifier")]
+        [SwaggerResponse(200, Type = typeof(Class), Description = "Image score of food type")]
+        public IActionResult VisualRecognizeImageFoodClassifier(IFormFile file)
         {
-            return Ok("Hello from put method. Message : " + message);
-        }
+            IamAuthenticator authenticator = new IamAuthenticator(apikey: _apiKey);
 
-        /// <summary>
-        /// Delete Operation
-        /// </summary>
-        /// <remarks>
-        /// Sample value of message
-        /// 
-        ///     Hi Sukhpinder
-        ///     
-        /// </remarks>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        [HttpDelete]
-        [Route("/delete/{message}")]
-        [SwaggerOperation("DeleteOperation")]
-        [SwaggerResponse(200, Type = typeof(string), Description = "Delete operation")]
-        [SwaggerResponse(500, Type = typeof(string), Description = "Internal Server Error")]
-        [SwaggerResponse(404, Type = typeof(string), Description = "Method Not Found")]
-        public IActionResult DeleteOperation([FromRoute] string message)
-        {
-            return Ok("Hello from delete method. Message : " + message);
-        }
+            VisualRecognitionService visualRecognition = new VisualRecognitionService(_versionDate, authenticator);
+            visualRecognition.SetServiceUrl(_ibmServiceUrl);
+            byte[] fileBytes;
+            var ms = new MemoryStream();
 
+            file.CopyTo(ms);
+            fileBytes = ms.ToArray();
+            string s = Convert.ToBase64String(fileBytes);
+
+            var result = visualRecognition.Classify(
+                imagesFilename: file.FileName,
+                imagesFileContentType: file.ContentType,
+                imagesFile: ms,
+                classifierIds: new List<string>()
+                    {
+                        "food"
+                    }
+                );
+
+            ms.Close();
+
+            var response = JsonConvert.DeserializeObject<FaceRecognitionResponse>(result.Response);
+            var classes = response.images.SelectMany(x => x.classifiers).SelectMany(y => y.classes).OrderByDescending(x => x.score);
+
+            return Ok(classes);
+        }
     }
 }
