@@ -96,5 +96,76 @@ namespace SwaggerUI_CoreExample.Controllers
 
             return Ok(classes);
         }
+
+        [HttpPost]
+        [Route("/recongnize-image-explicit")]
+        [SwaggerOperation("VisualRecognizeImageFoodClassifier")]
+        [SwaggerResponse(200, Type = typeof(Class), Description = "Image score of explicit type")]
+        public IActionResult VisualRecognizeImageExplicitClassifier(IFormFile file)
+        {
+            IamAuthenticator authenticator = new IamAuthenticator(apikey: _apiKey);
+
+            VisualRecognitionService visualRecognition = new VisualRecognitionService(_versionDate, authenticator);
+            visualRecognition.SetServiceUrl(_ibmServiceUrl);
+            byte[] fileBytes;
+            var ms = new MemoryStream();
+
+            file.CopyTo(ms);
+            fileBytes = ms.ToArray();
+            string s = Convert.ToBase64String(fileBytes);
+
+            var result = visualRecognition.Classify(
+                imagesFilename: file.FileName,
+                imagesFileContentType: file.ContentType,
+                imagesFile: ms,
+                classifierIds: new List<string>()
+                    {
+                        "explicit"
+                    }
+                );
+
+            ms.Close();
+
+            var response = JsonConvert.DeserializeObject<FaceRecognitionResponse>(result.Response);
+            var classes = response.images.SelectMany(x => x.classifiers).SelectMany(y => y.classes).OrderByDescending(x => x.score);
+
+            return Ok(classes);
+        }
+
+
+        [HttpPost]
+        [Route("/recongnize-image-custom-model")]
+        [SwaggerOperation("VisualRecognizeImageCustomClassifier")]
+        [SwaggerResponse(200, Type = typeof(Class), Description = "Image score of custom type")]
+        public IActionResult VisualRecognizeImageCustomClassifier(IFormFile file)
+        {
+            IamAuthenticator authenticator = new IamAuthenticator(apikey: _apiKey);
+
+            VisualRecognitionService visualRecognition = new VisualRecognitionService(_versionDate, authenticator);
+            visualRecognition.SetServiceUrl(_ibmServiceUrl);
+            byte[] fileBytes;
+            var ms = new MemoryStream();
+
+            file.CopyTo(ms);
+            fileBytes = ms.ToArray();
+            string s = Convert.ToBase64String(fileBytes);
+
+            var result = visualRecognition.Classify(
+                imagesFilename: file.FileName,
+                imagesFileContentType: file.ContentType,
+                imagesFile: ms,
+                classifierIds: new List<string>()
+                    {
+                        "isdigit_1286519562"
+                    }
+                );
+
+            ms.Close();
+
+            var response = JsonConvert.DeserializeObject<FaceRecognitionResponse>(result.Response);
+            var classes = response.images.SelectMany(x => x.classifiers).SelectMany(y => y.classes).OrderByDescending(x => x.score);
+
+            return Ok(classes);
+        }
     }
 }
